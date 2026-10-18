@@ -6,116 +6,137 @@
 <title>Portal para Santiago</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Caveat:wght@500;700&display=swap">
 <style>
-/* Layout: una sola pantalla. Espacio profundo, el aparato abajo, el portal se abre en el centro y de él sale la nota. */
+/* Layout: primera persona. El aparato sale desde abajo como si estuviera en la mano; tocar el cielo dispara y abre el portal ahí. */
 :root{
-  --void:#0a0716; --deep:#160f2e; --violet:#7b4dff; --amber:#ffb23e;
-  --coral:#ff5c8a; --teal:#38e3c8; --paper:#fff6e6; --ink:#2a1d3d; --text:#efe7ff;
+  --void:#0a0716; --violet:#7b4dff; --amber:#ffb23e; --coral:#ff5c8a; --teal:#38e3c8;
+  --paper:#fff6e6; --ink:#2a1d3d; --text:#efe7ff;
   --ui:"Chakra Petch", ui-monospace, monospace; --hand:"Caveat", "Comic Sans MS", cursive;
   color-scheme:dark;
 }
 html,body{height:100%}
-body{background:var(--void);color:var(--text);font-family:var(--ui);overflow:hidden;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
-.stage{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding-block:24px}
-.top{text-align:center;display:grid;gap:6px}
+body{background:var(--void);color:var(--text);font-family:var(--ui);overflow:hidden;touch-action:manipulation;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-user-select:none;user-select:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+.top{position:fixed;left:0;right:0;top:calc(18px + env(safe-area-inset-top,0px));z-index:2;text-align:center;display:grid;gap:6px;pointer-events:none;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));transition:opacity .5s}
 .eyebrow{font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--teal)}
-h1{margin:0;font-size:clamp(26px,7vw,42px);text-wrap:balance;line-height:1.05}
+h1{margin:0;font-size:clamp(24px,6.5vw,40px);text-wrap:balance;line-height:1.05}
 h1 span{color:var(--amber)}
+.tip{font-size:13px;color:#efe7ffb3;letter-spacing:.05em}
 
-/* Aparato */
-.device{position:relative;width:min(320px,100%);background:linear-gradient(160deg,#9b74ff,var(--violet) 45%,#4b2aa8);
-  border-radius:28px 28px 40px 40px;padding:18px 18px 22px;box-shadow:0 0 0 3px #2b1a5c,0 18px 40px #000a,inset 0 2px 0 #fff4;
-  display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;transition:transform .4s}
-.device.kick{animation:kick .35s}
-@keyframes kick{30%{transform:translateY(8px) scale(.98)}}
-.screen{grid-column:1/-1;background:#06151a;border-radius:12px;padding:10px 12px;box-shadow:inset 0 0 0 2px #0f3a40,inset 0 0 18px #38e3c833;
-  color:var(--teal);font-size:13px;display:grid;gap:2px;font-variant-numeric:tabular-nums}
-.screen b{font-size:20px;letter-spacing:.08em;color:#9ffff0}
-.dial{width:70px;height:70px;border-radius:50%;background:conic-gradient(from 0deg,var(--amber),#ffd98a,var(--amber),#c27a12,var(--amber));
-  box-shadow:0 0 0 4px #2b1a5c,inset 0 -4px 8px #0005;position:relative;cursor:grab;border:none}
-.dial::after{content:"";position:absolute;left:50%;top:6px;width:6px;height:20px;margin-left:-3px;border-radius:3px;background:var(--ink)}
-.dial{transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
-.fire{font-family:var(--ui);font-weight:700;font-size:18px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
-  background:var(--amber);border:none;border-radius:999px;padding:16px 22px;box-shadow:0 6px 0 #a0600c,0 0 24px #ffb23e66;cursor:pointer}
-.fire:active{transform:translateY(4px);box-shadow:0 2px 0 #a0600c}
-.fire:focus-visible,.dial:focus-visible,.again:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
-.fire:disabled{opacity:.6}
-.hint{grid-column:1/-1;text-align:center;font-size:12px;color:#ffffffcc;letter-spacing:.1em}
+/* Aparato en primera persona */
+.rig{position:fixed;left:50%;bottom:calc(-70px + env(safe-area-inset-bottom,0px));z-index:3;width:min(300px,78vw);
+  transform-origin:50% 100%;transform:translateX(-50%) rotate(var(--aim,0deg));transition:transform .25s ease-out}
+.rig.recoil .gun{animation:recoil .3s}
+@keyframes recoil{35%{transform:translateY(26px) scale(.97)}}
+.gun{position:relative;perspective:600px}
+.body{position:relative;margin:0 auto;width:100%;aspect-ratio:3/4;transform:rotateX(38deg);transform-origin:50% 100%;
+  background:linear-gradient(180deg,#a184ff,var(--violet) 40%,#3f2391);border-radius:46% 46% 18px 18px / 30% 30% 18px 18px;
+  box-shadow:0 0 0 4px #24154d,0 -10px 40px #7b4dff55,inset 0 6px 0 #ffffff33}
+.prong{position:absolute;left:50%;top:-34px;width:34%;height:52px;transform:translateX(-50%);display:flex;justify-content:space-between}
+.prong i{width:22%;background:linear-gradient(#ffd98a,var(--amber));border-radius:10px 10px 4px 4px;box-shadow:0 0 0 3px #24154d}
+.tip-glow{position:absolute;left:50%;top:-44px;width:30px;height:30px;margin-left:-15px;border-radius:50%;
+  background:radial-gradient(#fff,var(--coral) 55%,transparent 70%);filter:blur(1px);opacity:.75;animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35;transform:scale(.8)}}
+.panel{position:absolute;left:9%;right:9%;top:16%;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.screen{grid-column:1/-1;background:#06151a;border-radius:10px;padding:8px 10px;box-shadow:inset 0 0 0 2px #0f3a40,inset 0 0 18px #38e3c833;
+  color:var(--teal);font-size:12px;display:grid;gap:1px;font-variant-numeric:tabular-nums}
+.screen b{font-size:18px;letter-spacing:.06em;color:#9ffff0}
+.dial{width:62px;height:62px;border-radius:50%;border:none;cursor:pointer;position:relative;
+  background:conic-gradient(from 0deg,var(--amber),#ffd98a,var(--amber),#c27a12,var(--amber));
+  box-shadow:0 0 0 4px #24154d,inset 0 -4px 8px #0005;transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
+.dial::after{content:"";position:absolute;left:50%;top:5px;width:6px;height:18px;margin-left:-3px;border-radius:3px;background:var(--ink)}
+.fire{font-family:var(--ui);font-weight:700;font-size:16px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
+  background:var(--coral);border:none;border-radius:999px;padding:14px 10px;box-shadow:0 5px 0 #a52a55,0 0 22px #ff5c8a66;cursor:pointer}
+.fire:active{transform:translateY(3px);box-shadow:0 2px 0 #a52a55}
+.dial:focus-visible,.fire:focus-visible,.again:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+.labels{grid-column:1/-1;display:flex;justify-content:space-between;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#ffffffb3}
 
 /* Nota */
-.note{position:fixed;left:50%;top:50%;z-index:3;width:min(360px,calc(100% - 32px));max-height:80%;overflow:auto;
-  background:var(--paper);color:var(--ink);border-radius:6px;padding:26px 24px 20px;
-  font-family:var(--hand);font-size:24px;line-height:1.25;box-shadow:0 0 60px #ff5c8a88,0 20px 40px #000a;
+.note{position:fixed;left:50%;top:44%;z-index:4;width:min(360px,calc(100% - 32px));max-height:72%;overflow:auto;
+  background:var(--paper);color:var(--ink);border-radius:6px;padding:24px 22px 18px;
+  font-family:var(--hand);font-size:25px;line-height:1.25;box-shadow:0 0 60px #ff5c8a88,0 20px 40px #000a;
   transform:translate(-50%,-50%) scale(.05) rotate(-200deg);opacity:0;pointer-events:none;transition:transform 1.1s cubic-bezier(.2,1.3,.4,1),opacity .6s}
 .note.show{transform:translate(-50%,-50%) scale(1) rotate(-2deg);opacity:1;pointer-events:auto}
 .note p{margin:0 0 10px}
 .note .to{font-size:32px;font-weight:700;color:var(--violet)}
 .note .sign{text-align:right;font-weight:700;color:var(--coral)}
-.stamp{font-family:var(--ui);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7b4dffaa;border-top:1px dashed #7b4dff66;padding-top:8px;margin-top:6px;display:flex;justify-content:space-between}
+.stamp{font-family:var(--ui);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7b4dffaa;border-top:1px dashed #7b4dff66;padding-top:8px;display:flex;justify-content:space-between;gap:8px}
 .again{display:block;margin:14px auto 0;font-family:var(--ui);font-size:13px;letter-spacing:.12em;text-transform:uppercase;background:none;border:2px solid var(--violet);color:var(--violet);border-radius:999px;padding:8px 16px;cursor:pointer}
-.hidden-ui{opacity:0;pointer-events:none;transition:opacity .5s}
-@media (prefers-reduced-motion:reduce){.note,.dial,.device{transition:none;animation:none}}
+.fade{opacity:0}
+@media (prefers-reduced-motion:reduce){.note,.dial,.rig{transition:none}.rig.recoil .gun,.tip-glow{animation:none}}
 </style>
 </head>
 <body style="margin:0">
 
-<canvas id="c"></canvas>
-<div class="stage">
-  <div class="top" id="top">
-    <div class="eyebrow">Transmisión interdimensional</div>
-    <h1>Hay un mensaje para <span>Santiago</span></h1>
-  </div>
+<canvas id="c" aria-label="Cielo: tocá para disparar el portal"></canvas>
 
-  <div class="device" id="device">
-    <div class="screen" aria-live="polite">
-      <span id="status">DESTINO SIN FIJAR</span>
-      <b id="coord">DIM ··· ···</b>
+<div class="top" id="top">
+  <div class="eyebrow">Transmisión interdimensional</div>
+  <h1>Santiago, el aparato es <span>tuyo</span></h1>
+  <div class="tip">Girá la perilla para cambiar de dimensión y tocá el cielo para disparar</div>
+</div>
+
+<div class="rig" id="rig">
+  <div class="gun">
+    <div class="tip-glow"></div>
+    <div class="prong"><i></i><i></i></div>
+    <div class="body">
+      <div class="panel">
+        <div class="screen" aria-live="polite">
+          <span id="status">DIMENSIÓN FIJADA</span>
+          <b id="coord">DIM C-1708</b>
+          <span id="count">MENSAJE 1 DE 7</span>
+        </div>
+        <button class="dial" id="dial" aria-label="Girar perilla: cambiar de dimensión"></button>
+        <button class="fire" id="fire">Disparar</button>
+        <div class="labels"><span>Perilla</span><span>Gatillo</span></div>
+      </div>
     </div>
-    <button class="dial" id="dial" aria-label="Girar perilla de dimensión"></button>
-    <button class="fire" id="fire">Disparar</button>
-    <div class="hint">Girá la perilla y disparale al cielo</div>
   </div>
 </div>
 
 <article class="note" id="note" aria-hidden="true">
   <p class="to">Santiago:</p>
-  <p>Revisé millones de dimensiones.</p>
-  <p>En una la gravedad va al revés, en otra los perros dan clases de filosofía y en otra todo está hecho de gelatina.</p>
-  <p>Pero en todas pasa lo mismo: te elijo a vos.</p>
-  <p>Gracias por mi antología. Esta es mi respuesta, enviada por portal porque por WhatsApp no tenía tanta gracia.</p>
+  <div id="msg"></div>
   <p class="sign">— Nico</p>
-  <div class="stamp"><span id="dimStamp">DIM C-1708</span><span>entrega confirmada</span></div>
+  <div class="stamp"><span id="dimStamp">DIM C-1708</span><span id="numStamp">1 / 7</span></div>
   <button class="again" id="again">Cerrar portal</button>
 </article>
 
 <script>
+/* ====== MENSAJES: cambiá o agregá los que quieras ====== */
+const MENSAJES = [
+  ["Revisé millones de dimensiones.", "En todas pasa lo mismo: te elijo a vos."],
+  ["En esta dimensión nos volvemos a conocer.", "Spoiler: me enamoro de vos igual de rápido."],
+  ["Aquí los perros dan clases de filosofía.", "Y aun así, lo más interesante del lugar sos vos."],
+  ["En esta dimensión todo está hecho de gelatina.", "Lo único firme es lo que siento por vos."],
+  ["Esta es la dimensión de tus abrazos.", "Ya pedí permiso para quedarme a vivir aquí."],
+  ["En esta dimensión no existe WhatsApp,", "así que te escribo por portal: te extraño cuando no estás."],
+  ["Gracias por mi antología.", "Esta página es mi respuesta, y todavía me quedan dimensiones por contarte."]
+];
+/* ======================================================= */
+
 const cv=document.getElementById('c'),cx=cv.getContext('2d');
-let W,H,dpr;function size(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0)}
+let W,H;function size(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0)}
 size();addEventListener('resize',size);
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stars=Array.from({length:170},()=>({x:Math.random(),y:Math.random(),r:Math.random()*1.4+.2,t:Math.random()*6}));
+let open=0,target=0,beam=0,t=0,parts=[],px=0,py=0,busy=false;
 
-// estrellas
-const stars=Array.from({length:160},()=>({x:Math.random(),y:Math.random(),r:Math.random()*1.4+.2,t:Math.random()*6}));
-// estado
-let open=0,target=0,beam=0,t=0,parts=[];
-const P={x:()=>W/2,y:()=>H*0.42};
+const rig=document.getElementById('rig');
+function tipPoint(){const g=rig.querySelector('.tip-glow').getBoundingClientRect();return{x:g.left+g.width/2,y:g.top+g.height/2}}
+function aimAt(x,y){const bx=W/2,by=H;const ang=Math.atan2(x-bx,by-y)*180/Math.PI;rig.style.setProperty('--aim',Math.max(-40,Math.min(40,ang))+'deg')}
 
-function drawPortal(r){
-  const x=P.x(),y=P.y();
-  // halo
+function drawPortal(x,y,r){
   const g=cx.createRadialGradient(x,y,r*.2,x,y,r*1.6);
   g.addColorStop(0,'rgba(255,92,138,.35)');g.addColorStop(.6,'rgba(123,77,255,.15)');g.addColorStop(1,'rgba(0,0,0,0)');
   cx.fillStyle=g;cx.beginPath();cx.arc(x,y,r*1.6,0,7);cx.fill();
-  // anillos girando
   const cols=['#ffb23e','#ff5c8a','#7b4dff','#38e3c8'];
-  for(let i=0;i<26;i++){
-    const k=i/26,rr=r*(1-k*.92);
+  for(let i=0;i<26;i++){const k=i/26,rr=r*(1-k*.92);
     cx.save();cx.translate(x,y);cx.rotate(t*(.6+k*2.2)*(i%2?1:-1)+i);
     cx.strokeStyle=cols[i%4];cx.globalAlpha=.35+.5*(1-k);cx.lineWidth=2+6*(1-k);
-    cx.beginPath();cx.ellipse(0,0,rr,rr*.93,0,0,Math.PI*(1.1+.6*Math.sin(t+i)));cx.stroke();cx.restore();
-  }
-  // centro
+    cx.beginPath();cx.ellipse(0,0,rr,rr*.93,0,0,Math.PI*(1.1+.6*Math.sin(t+i)));cx.stroke();cx.restore();}
   const c=cx.createRadialGradient(x,y,0,x,y,r*.5);
   c.addColorStop(0,'rgba(255,246,230,.95)');c.addColorStop(1,'rgba(255,178,62,0)');
   cx.globalAlpha=1;cx.fillStyle=c;cx.beginPath();cx.arc(x,y,r*.5,0,7);cx.fill();
@@ -125,44 +146,44 @@ function frame(){
   cx.fillStyle='#0a0716';cx.fillRect(0,0,W,H);
   for(const s of stars){cx.globalAlpha=.4+.6*Math.abs(Math.sin(t*.8+s.t));cx.fillStyle='#efe7ff';cx.fillRect(s.x*W,s.y*H,s.r,s.r)}
   cx.globalAlpha=1;
-  // rayo
-  if(beam>0){
-    const dev=document.getElementById('device').getBoundingClientRect();
-    cx.strokeStyle='rgba(56,227,200,'+beam+')';cx.lineWidth=6*beam;cx.shadowColor='#38e3c8';cx.shadowBlur=20;
-    cx.beginPath();cx.moveTo(W/2,dev.top);cx.lineTo(P.x(),P.y());cx.stroke();cx.shadowBlur=0;
-    beam-=.025;
-  }
+  if(beam>0){const tp=tipPoint();cx.strokeStyle='rgba(255,92,138,'+beam+')';cx.lineWidth=7*beam;cx.shadowColor='#ff5c8a';cx.shadowBlur=22;
+    cx.beginPath();cx.moveTo(tp.x,tp.y);cx.lineTo(px,py);cx.stroke();cx.shadowBlur=0;beam-=.03;}
   open+=(target-open)*.06;
-  const R=Math.min(W,H)*.34*open;
-  if(R>1)drawPortal(R);
-  // partículas
+  const R=Math.min(W,H)*.3*open;
+  if(R>1)drawPortal(px,py,R);
   if(open>.3&&parts.length<120&&!reduce)parts.push({a:Math.random()*7,d:R,s:Math.random()*2+1,c:['#ffb23e','#ff5c8a','#38e3c8'][parts.length%3]});
-  parts=parts.filter(p=>{p.d-=p.s;p.a+=.04;const x=P.x()+Math.cos(p.a)*p.d,y=P.y()+Math.sin(p.a)*p.d*.93;
-    cx.fillStyle=p.c;cx.fillRect(x,y,3,3);return p.d>4&&target>0});
+  parts=parts.filter(p=>{p.d-=p.s;p.a+=.04;cx.fillStyle=p.c;cx.fillRect(px+Math.cos(p.a)*p.d,py+Math.sin(p.a)*p.d*.93,3,3);return p.d>4&&target>0});
   requestAnimationFrame(frame);
 }
 frame();
 
-// perilla
-const dial=document.getElementById('dial'),coord=document.getElementById('coord'),status=document.getElementById('status');
-let rot=0,dim='C-1708';
-function spin(){rot+=60+Math.random()*120;dial.style.transform='rotate('+rot+'deg)';
-  const L='ABCDJKSTXZ'[Math.floor(Math.random()*10)];dim=L+'-'+(1000+Math.floor(Math.random()*9000));
-  coord.textContent='DIM '+dim;status.textContent='DESTINO FIJADO';}
-dial.addEventListener('click',spin);
+// estado de dimensión
+let idx=0,rot=0,dim='C-1708';
+const coord=document.getElementById('coord'),status=document.getElementById('status'),count=document.getElementById('count'),dial=document.getElementById('dial');
+function newDim(){const L='ABCDJKSTXZ'[Math.floor(Math.random()*10)];dim=L+'-'+(1000+Math.floor(Math.random()*9000))}
+function paint(){coord.textContent='DIM '+dim;count.textContent='MENSAJE '+(idx+1)+' DE '+MENSAJES.length}
+function spin(){rot+=60+Math.random()*120;dial.style.transform='rotate('+rot+'deg)';idx=(idx+1)%MENSAJES.length;newDim();status.textContent='DIMENSIÓN FIJADA';paint()}
+dial.addEventListener('click',e=>{e.stopPropagation();if(!busy)spin()});
+paint();
 
-const fire=document.getElementById('fire'),note=document.getElementById('note'),dev=document.getElementById('device'),top_=document.getElementById('top');
-fire.addEventListener('click',()=>{
-  if(status.textContent!=='DESTINO FIJADO')spin();
-  fire.disabled=true;dev.classList.remove('kick');void dev.offsetWidth;dev.classList.add('kick');
-  status.textContent='ABRIENDO PORTAL…';beam=1;
-  setTimeout(()=>{target=1},250);
-  setTimeout(()=>{document.getElementById('dimStamp').textContent='DIM '+dim;note.classList.add('show');note.setAttribute('aria-hidden','false');
-    dev.classList.add('hidden-ui');top_.classList.add('hidden-ui');},1500);
-});
+const note=document.getElementById('note'),top_=document.getElementById('top');
+function fireAt(x,y){
+  if(busy)return;busy=true;aimAt(x,y);px=x;py=Math.min(y,H*.6);
+  rig.classList.remove('recoil');void rig.offsetWidth;rig.classList.add('recoil');
+  status.textContent='ABRIENDO PORTAL…';beam=1;setTimeout(()=>{target=1},220);
+  setTimeout(()=>{
+    document.getElementById('msg').innerHTML=MENSAJES[idx].map(l=>'<p>'+l+'</p>').join('');
+    document.getElementById('dimStamp').textContent='DIM '+dim;
+    document.getElementById('numStamp').textContent=(idx+1)+' / '+MENSAJES.length;
+    note.classList.add('show');note.setAttribute('aria-hidden','false');top_.classList.add('fade');
+  },1400);
+}
+cv.addEventListener('pointerdown',e=>fireAt(e.clientX,e.clientY));
+cv.addEventListener('pointermove',e=>{if(!busy)aimAt(e.clientX,e.clientY)});
+document.getElementById('fire').addEventListener('click',e=>{e.stopPropagation();fireAt(W/2+(Math.random()-.5)*W*.3,H*.32)});
 document.getElementById('again').addEventListener('click',()=>{
-  note.classList.remove('show');note.setAttribute('aria-hidden','true');target=0;
-  setTimeout(()=>{dev.classList.remove('hidden-ui');top_.classList.remove('hidden-ui');fire.disabled=false;status.textContent='PORTAL CERRADO · LISTO';},600);
+  note.classList.remove('show');note.setAttribute('aria-hidden','true');target=0;rig.style.setProperty('--aim','0deg');
+  setTimeout(()=>{spin();status.textContent='PORTAL CERRADO · GIRÁ O DISPARÁ';top_.classList.remove('fade');busy=false},600);
 });
 </script>
 </body>
